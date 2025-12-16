@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>trvlr</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+  </head>
+  <body class="pt-5">
+    <header>
+        <nav class="navbar bg-body-tertiary d-flex fixed-top">
+        <div class="container-fluid"></div>
+        <div class="container-fluid justify-content-center">
+            <!--Logo-->
+            <a class="navbar-brand mx-4" style="min-width: 100px;">
+                <img src="../images/trvlr.svg" alt="trvlr logo" width="60" height="60" class="d-inline-block align-text-top">
+            </a>  
+            
+            <!--Navigation Links-->
+            <div class="d-flex mx-auto justify-content-center align-items-center">
+                <a class="nav-link mx-4" href="#stay">
+                    <i class="bi bi-house-door mx-auto"></i>Stay</a>
+                <a class="nav-link mx-4" href="#explore">
+                    <i class="bi bi-compass mx-auto"></i>Explore</a>
+                <a class="nav-link mx-4" href="#emailloginmodal">
+                    <i class="bi bi-bookmark mx-auto"></i>Bookings</a>
+                <a class="nav-link mx-4" href="#hero">
+                    <i class="bi bi-search mx-auto"></i>Search</a>
+                
+            </div>
+            
+            <!--Login Button-->
+            <button
+                class="btn btn-light"
+                data-bs-toggle="modal"
+                data-bs-target="#emailloginmodal"
+                type="button"
+                style="min-width: 100px;">
+                Login
+            </button>
+            <div
+                class="modal fade"
+                id="emailloginmodal"
+                aria-hidden="true"
+                aria-labelledby="emailloginmodallabel"
+                tabindex="-1"
+                data-bs-backdrop="false">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header border-0">
+                            <h5 class="modal-title" id="emalloginmodallabel">
+                                Log in to trvlr
+                            </h5>
+                            <button
+                                type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal"
+                                aria-label="Close"
+                                ></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="container">
+                                <div class="text-center mb-4">
+                                    <img src="../images/trvlr.svg" alt="trvlr logo" width="72" height="72" class="mb-2">
+                                    <p class="mb-0 text-muted">Welcome back. Sign in to continue planning your next trip.</p>
+                                </div>
+                                <form id="loginForm" class="needs-validation" method="post" action="index.php">
+                                    <div class="mb-3">
+                                        <label for="loginEmail" class="form-label">Email address</label>
+                                        <input 
+                                            type="email" 
+                                            class="form-control" 
+                                            id="loginpassword"
+                                            name="loginemail" 
+                                            placeholder="john.doe@mail.com"
+                                            required>
+                                        <div class="invalid-feedback">
+                                            Please enter a valid email address.
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="loginPassword" class="form-label">Password</label>
+                                        <input 
+                                            type="password" 
+                                            class="form-control" 
+                                            id="loginpassword" 
+                                            name="loginpassword"
+                                            placeholder="Enter your password"
+                                            required>
+                                        <div class="invalid-feedback">
+                                            Please enter your password.
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-dark btn-lg w-100 rounded-pill">
+                                        Log In
+                                    </button>
+                                    <div class="text-center mt-3">
+                                        <p>
+                                            Don't have an account? 
+                                            <a 
+                                                href="signup.html"
+                                                class="text-decoration-none"
+                                                >
+                                                Sign up
+                                            </a>
+                                        </p>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </nav>
+    </header>
+        <main>
+        <!-- Hero Section -->
+      <section id="hero" class="py-5 text-center container">
+        <div class="row py-lg-5">
+          <div class="col-lg-6 col-md-8 mx-auto">
+            <h1 class="display-4">Travel</h1>
+            <h2>Here, There, And Everywhere</h2>
+            <form id="searchForm">
+              <div class="input-group mb-3 mt-4">
+                <span class="input-group-text">
+                  <i class="bi bi-search"></i>
+                </span>
+                <input type="text" class="form-control" id="searchCity" placeholder="Search a city (e.g., manila, cebu, boracay)" value="manila" required>
+                <button type="submit" class="btn btn-primary">Search</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- Stay Section -->
+      <section id="stay" class="container mb-5">
+        <h2 class="mb-3">Stay in <span id="cityName">Manila</span></h2>
+        <p>Find the perfect accommodation for your trip.</p>
+        
+        <div id="alertContainer"></div>
+        
+        <div class="row" id="stayRowMain">
+          <div class="col-12 text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Loading hotels...</p>
+          </div>
+        </div>
+        
+        <div class="collapse" id="stayMore">
+          <div class="row mt-3" id="stayRowMore"></div>
+        </div>
+        
+        <div class="text-center mb-2" id="showMoreContainer" style="display: none;">
+          <button class="btn btn-outline-dark" type="button" data-bs-toggle="collapse" data-bs-target="#stayMore" id="stayToggleBtn">
+            Show More
+          </button>
+        </div>
+      </section>
+
+        <!--Featured/Explore Section-->
+        <section id="explore" class="container mb-5">
+            <div class="card">
+                <div class="row g-0">
+                    <div class="col-md-6">
+                        <div class="card-body bg-secondary bg-opacity-25" id="exploreImage" style="height: 500px;">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card-body" id="exploreContent">
+                            <h3>Featured</h3>
+                            <p>Search a city to explore places</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-3 mb-md-0">
+                    <h5>trvlr</h5>
+                    <p class="small">Discover your next adventure with us. Travel here, there, and everywhere.</p>
+                </div>
+                <div class="col-md-4 mb-3 mb-md-0">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#stay" class="text-light text-decoration-none">Stay</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>Follow Us</h5>
+                    <div class="d-flex gap-3">
+                        <a href="#" class="text-light"><i class="bi bi-facebook fs-4"></i></a>
+                        <a href="#" class="text-light"><i class="bi bi-instagram fs-4"></i></a>
+                        <a href="#" class="text-light"><i class="bi bi-twitter fs-4"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-3 bg-light">
+            <div class="text-center">
+                <p class="small mb-0">&copy; 2025 trvlr. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
