@@ -1,39 +1,15 @@
 <?php
 session_start();
 
-$serverName = "waphayll\\SQLEXPRESS";
-$connectionOptions = [
-    "Database" => "trvlr",
-    "Uid" => "",
-    "PWD" => ""
-];
-
-$conn = sqlsrv_connect($serverName, $connectionOptions);
-if ($conn === false) {
-    die("Database connection failed.");
+// Check if user is logged in
+if (!isset($_SESSION['user'])) {
+    header("Location: index.html");
+    exit;
 }
+?>
 
-// Only run login logic if email and password are provided
-if (!empty($_POST['loginemail']) && !empty($_POST['loginpassword'])) {
-    $email = $_POST['loginemail'];
-    $password = $_POST['loginpassword'];
-
-    $sql_check = "SELECT FIRST_NAME, LAST_NAME, PASSWORD FROM USERS WHERE EMAIL = ?";
-    $params_check = array($email);
-    $stmt_check = sqlsrv_query($conn, $sql_check, $params_check);
-    $user = sqlsrv_fetch_array($stmt_check, SQLSRV_FETCH_ASSOC);
-
-    if (!$user || $user['PASSWORD'] !== $password) {
-        echo "Wrong email or password.";
-        exit;
-    }
-    
-    $_SESSION['user'] = [
-        'first_name' => $user['FIRST_NAME'],
-        'last_name' => $user['LAST_NAME'],
-        'email' => $email
-    ];
-}
+<?php
+session_start();
 
 // Check if user is logged in
 if (!isset($_SESSION['user'])) {
@@ -42,570 +18,114 @@ if (!isset($_SESSION['user'])) {
 }
 ?>
 
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>trvlr</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-  * {
-    font-family: 'Poppins', sans-serif;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    background: #fffbeb;
-}
-
-/* Navbar */
-.navbar {
-    background: rgba(255, 255, 255, 0.95) !important;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
-    padding: 18px 0;
-}
-
-.navbar-brand img {
-    height: 35px;
-}
-
-.nav-link {
-    color: #78350f !important;
-    font-weight: 500;
-    margin: 0 8px;
-    transition: color 0.3s ease;
-}
-
-.nav-link:hover {
-    color: #f59e0b !important;
-}
-
-/* Buttons */
-.btn-teal, .btn-primary, .btn-signup, .btn-coral {
-    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
-    color: #78350f !important;
-    border: none;
-    padding: 10px 28px;
-    border-radius: 25px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.btn-teal:hover, .btn-primary:hover, .btn-signup:hover, .btn-coral:hover {
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 20px rgba(251, 191, 36, 0.4);
-}
-
-.btn-edit {
-    background: #fef3c7 !important;
-    color: #b45309 !important;
-    padding: 10px 20px;
-    border-radius: 12px;
-    font-weight: 500;
-    border: none;
-    transition: all 0.3s ease;
-}
-
-.btn-edit:hover {
-    background: #fde68a !important;
-    transform: translateY(-2px);
-}
-
-.btn-delete {
-    background: #fde68a !important;
-    color: #78350f !important;
-    padding: 10px 20px;
-    border-radius: 12px;
-    font-weight: 500;
-    border: none;
-    transition: all 0.3s ease;
-}
-
-.btn-delete:hover {
-    background: #fbbf24 !important;
-    transform: translateY(-2px);
-}
-
-/* Hero Section */
-.hero {
-    position: relative;
-    height: 85vh;
-    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-}
-
-.hero::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url('hero.jpg') center/cover;
-    opacity: 0.1;
-    z-index: 0;
-}
-
-.hero-content {
-    position: relative;
-    z-index: 1;
-    text-align: center;
-    max-width: 800px;
-    padding: 20px;
-}
-
-.hero h1 {
-    font-size: 64px;
-    font-weight: 700;
-    color: #78350f;
-    margin-bottom: 20px;
-    line-height: 1.2;
-}
-
-.hero h2 {
-    font-size: 28px;
-    color: #b45309;
-    font-weight: 400;
-    margin-bottom: 40px;
-}
-
-/* Sections */
-section {
-    padding: 80px 0;
-}
-
-.section-title, .page-title {
-    font-size: 42px;
-    font-weight: 700;
-    color: #78350f;
-    margin-bottom: 15px;
-    text-align: center;
-}
-
-.section-subtitle {
-    font-size: 18px;
-    color: #b45309;
-    text-align: center;
-    margin-bottom: 50px;
-}
-
-/* Cards */
-.hotel-card, .destination-card, .booking-card, .signup-card {
-    background: white;
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 4px 20px rgba(251, 191, 36, 0.15);
-    transition: all 0.3s ease;
-    border: none;
-}
-
-.hotel-card:hover, .destination-card:hover, .booking-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 40px rgba(251, 191, 36, 0.25);
-}
-
-.hotel-card img, .destination-card img {
-    width: 100%;
-    height: 220px;
-    object-fit: cover;
-}
-
-.destination-card img {
-    height: 280px;
-}
-
-.card-body {
-    padding: 24px;
-}
-
-.signup-card {
-    padding: 45px 40px;
-}
-
-.card-title, .destination-card h3, .booking-card h5 {
-    color: #78350f;
-    font-weight: 600;
-    font-size: 20px;
-    margin-bottom: 8px;
-}
-
-.destination-card h3 {
-    font-size: 24px;
-    margin-bottom: 12px;
-}
-
-.booking-card h5 {
-    font-size: 22px;
-    margin-bottom: 16px;
-}
-
-.card-text, .destination-card p {
-    color: #b45309;
-    font-size: 14px;
-    margin-bottom: 16px;
-}
-
-.destination-card p {
-    font-size: 15px;
-    line-height: 1.7;
-    margin-bottom: 20px;
-}
-
-/* Hotel Price */
-.hotel-price {
-    color: #f59e0b;
-    font-size: 24px;
-    font-weight: 700;
-}
-
-.hotel-price small {
-    font-size: 14px;
-    color: #d97706;
-    font-weight: 400;
-}
-
-/* Destination Lists */
-.destination-card h6 {
-    color: #f59e0b;
-    font-weight: 600;
-    font-size: 14px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-top: 20px;
-    margin-bottom: 12px;
-}
-
-.destination-card ul {
-    list-style: none;
-    padding: 0;
-}
-
-.destination-card ul li {
-    color: #b45309;
-    font-size: 14px;
-    padding: 6px 0;
-    padding-left: 20px;
-    position: relative;
-}
-
-.destination-card ul li::before {
-    content: '→';
-    position: absolute;
-    left: 0;
-    color: #fbbf24;
-    font-weight: 600;
-}
-
-/* Forms */
-.search-form {
-    background: white;
-    padding: 30px;
-    border-radius: 20px;
-    box-shadow: 0 8px 30px rgba(251, 191, 36, 0.15);
-    margin-top: -60px;
-    position: relative;
-    z-index: 10;
-}
-
-.form-label {
-    color: #78350f;
-    font-weight: 500;
-    font-size: 14px;
-    margin-bottom: 8px;
-}
-
-.form-control, .form-select {
-    border: 2px solid #fde68a;
-    border-radius: 12px;
-    padding: 12px 16px;
-    font-size: 15px;
-    transition: all 0.3s ease;
-}
-
-.form-control:focus, .form-select:focus {
-    border-color: #fbbf24;
-    box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.15);
-}
-
-/* Signup Page */
-.signup-container {
-    max-width: 480px;
-    margin: 80px auto 40px;
-    padding: 20px;
-}
-
-.signup-card h2 {
-    color: #78350f;
-    font-weight: 700;
-    margin-bottom: 10px;
-    font-size: 32px;
-}
-
-.signup-card .subtitle {
-    color: #b45309;
-    margin-bottom: 35px;
-    font-size: 15px;
-}
-
-.signin-link {
-    text-align: center;
-    margin-top: 25px;
-    color: #b45309;
-    font-size: 14px;
-}
-
-.signin-link a {
-    color: #f59e0b;
-    text-decoration: none;
-    font-weight: 600;
-    transition: color 0.3s ease;
-}
-
-.signin-link a:hover {
-    color: #d97706;
-    text-decoration: underline;
-}
-
-/* Bookings Page */
-.bookings-container {
-    padding: 100px 0 60px;
-}
-
-.booking-detail {
-    display: flex;
-    justify-content: space-between;
-    padding: 12px 0;
-    border-bottom: 1px solid #fef3c7;
-}
-
-.booking-detail:last-child {
-    border-bottom: none;
-}
-
-.booking-detail strong {
-    color: #78350f;
-    font-weight: 600;
-}
-
-.booking-detail span {
-    color: #b45309;
-}
-
-.status-badge {
-    display: inline-block;
-    padding: 6px 16px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.status-confirmed, .status-pending {
-    background: #fef3c7;
-    color: #78350f;
-}
-
-.status-cancelled {
-    background: #fde68a;
-    color: #78350f;
-}
-
-.action-buttons {
-    margin-top: 20px;
-    display: flex;
-    gap: 12px;
-}
-
-.empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    background: white;
-    border-radius: 20px;
-    box-shadow: 0 4px 20px rgba(251, 191, 36, 0.15);
-}
-
-.empty-state h3 {
-    color: #78350f;
-    font-size: 24px;
-    margin-bottom: 12px;
-}
-
-.empty-state p {
-    color: #b45309;
-    margin-bottom: 30px;
-}
-
-/* Alerts */
-.alert {
-    border-radius: 12px;
-    border: none;
-    padding: 14px 18px;
-    font-size: 14px;
-}
-
-.alert-success {
-    background-color: #fef3c7;
-    color: #78350f;
-}
-
-.alert-danger {
-    background-color: #fde68a;
-    color: #78350f;
-}
-
-/* Modals */
-.modal-content {
-    border-radius: 20px;
-    border: none;
-    box-shadow: 0 20px 60px rgba(251, 191, 36, 0.3);
-}
-
-.modal-header {
-    border-bottom: 2px solid #fef3c7;
-    padding: 24px 28px;
-}
-
-.modal-title {
-    color: #78350f;
-    font-weight: 600;
-    font-size: 24px;
-}
-
-.modal-body {
-    padding: 28px;
-}
-
-/* Footer */
-footer {
-    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-    color: #78350f;
-    padding: 30px 0;
-    margin-top: 80px;
-}
-
-footer p {
-    margin: 0;
-    opacity: 0.9;
-    font-weight: 500;
-}
-
-/* Loading */
-.spinner-border {
-    color: #fbbf24;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .hero h1 {
-        font-size: 42px;
-    }
-    
-    .hero h2 {
-        font-size: 20px;
-    }
-    
-    .section-title, .page-title {
-        font-size: 32px;
-    }
-    
-    .search-form {
-        margin-top: 20px;
-    }
-}
-
-  </head>
-    <body class="pt-5">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel - Explore the Philippines</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Header Navigation -->
     <header>
-        <nav class="navbar bg-body-tertiary d-flex fixed-top">
-        <div class="container-fluid"></div>
-        <div class="container-fluid justify-content-center">
-            <a class="navbar-brand mx-4" style="min-width: 100px;" href="index.php">
-                <img src="../images/trvlr.svg" alt="trvlr logo" width="60" height="60" class="d-inline-block align-text-top">
-            </a>  
-            
-            <div class="d-flex mx-auto justify-content-center align-items-center">
-                <a class="nav-link mx-4" href="#stay">
-                    <i class="bi bi-house-door mx-auto"></i>Stay</a>
-                <a class="nav-link mx-4" href="#explore">
-                    <i class="bi bi-compass mx-auto"></i>Explore</a>
-                <a class="nav-link mx-4" href="bookings.php">
-                    <i class="bi bi-bookmark mx-auto"></i>Bookings</a>
-                <a class="nav-link mx-4" href="#hero">
-                    <i class="bi bi-search mx-auto"></i>Search</a>
-            </div>          
-            
-            <div class="dropdown">
-              <button class="btn btn-light dropdown-toggle" type="button" id="accountMenu" data-bs-toggle="dropdown" aria-expanded="false">
-                <?php echo htmlspecialchars($_SESSION['user']['first_name'] . ' ' . $_SESSION['user']['last_name']); ?>
-              </button>
-              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountMenu">
-              <li><a class="dropdown-item" href="profile.php">My Profile</a></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="index.html">Sign out</a></li>
-              </ul>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top shadow-sm">
+            <div class="container-fluid">
+                <!-- Logo -->
+                <a class="navbar-brand" href="index.php">
+                    <img src="../images/trvlr.svg" alt="trvlr logo" width="50" height="50" class="d-inline-block align-text-top">
+                </a>
+                
+                <!-- Navigation Links -->
+                <div class="navbar-nav mx-auto">
+                    <a class="nav-link mx-3" href="#stay">
+                        <i class="bi bi-house-door"></i> Stay
+                    </a>
+                    <a class="nav-link mx-3" href="#explore">
+                        <i class="bi bi-compass"></i> Explore
+                    </a>
+                    <a class="nav-link mx-3" href="bookings.php">
+                        <i class="bi bi-bookmark"></i> Bookings
+                    </a>
+                    <a class="nav-link mx-3" href="#hero">
+                        <i class="bi bi-search"></i> Search
+                    </a>
+                </div>
+                
+                <!-- User Dropdown -->
+                <div class="dropdown">
+                    <button class="btn btn-outline-primary dropdown-toggle" type="button" id="accountMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-person-circle"></i> <?php echo htmlspecialchars($_SESSION['user']['first_name'] . ' ' . $_SESSION['user']['last_name']); ?>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountMenu">
+                        <li><a class="dropdown-item" href="profile.php"><i class="bi bi-person"></i> My Profile</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="index.html"><i class="bi bi-box-arrow-right"></i> Sign out</a></li>
+                    </ul>
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
     </header>
-    
-    <main>
-        <!-- Hero Section -->
-      <section id="hero" class="py-5 text-center container">
-        <div class="row py-lg-5">
-          <div class="col-lg-6 col-md-8 mx-auto">
-            <h1 class="display-4">Travel</h1>
-            <h2>Here, There, And Everywhere</h2>
-            <form id="searchForm">
-              <div class="input-group mb-3 mt-4">
-                <span class="input-group-text">
-                  <i class="bi bi-search"></i>
-                </span>
-                <input type="text" class="form-control" id="searchCity" placeholder="Search a city (e.g., manila, cebu, boracay)" value="manila" required>
-                <button type="submit" class="btn btn-primary">Search</button>
-              </div>
+
+    <!-- Hero Section -->
+    <section id="hero" class="hero-section text-center">
+        <div class="container">
+            <h1 class="display-3 fw-bold mb-4">Travel</h1>
+            <p class="lead mb-4">Here, There, And Everywhere</p>
+            
+            <!-- Search Form -->
+            <form id="searchForm" class="row g-3 justify-content-center">
+                <div class="col-md-8 col-lg-6">
+                    <input type="text" class="form-control form-control-lg" id="cityInput" 
+                           placeholder="Where do you want to go?" required>
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-light btn-lg">
+                        <i class="bi bi-search"></i> Search
+                    </button>
+                </div>
             </form>
-          </div>
         </div>
-      </section>
+    </section>
 
-      <!-- Stay Section -->
-      <section id="stay" class="container mb-5">
-        <h2 class="mb-3">Stay in <span id="cityName">Manila</span></h2>
-        <p>Find the perfect accommodation for your trip.</p>
-        
+    <!-- Alert Container -->
+    <div class="container mt-4">
         <div id="alertContainer"></div>
-        
-        <div class="row" id="stayRowMain">
-          <div class="col-12 text-center py-5">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Loading...</span>
-            </div>
-            <p class="mt-2">Loading hotels...</p>
-          </div>
-        </div>
-        
-        <div class="collapse" id="stayMore">
-          <div class="row mt-3" id="stayRowMore"></div>
-        </div>
-        
-        <div class="text-center mb-2" id="showMoreContainer" style="display: none;">
-          <button class="btn btn-outline-dark" type="button" data-bs-toggle="collapse" data-bs-target="#stayMore" id="stayToggleBtn">
-            Show More
-          </button>
-        </div>
-      </section>
+    </div>
 
-          <!-- Explore Section -->
-      <section id="explore" class="py-5 bg-light">
+    <!-- Stay Section -->
+    <section id="stay" class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold">Stay in <span id="cityName">Manila</span></h2>
+                <p class="lead text-muted">Find the perfect accommodation for your trip.</p>
+            </div>
+
+            <!-- Hotel Cards Row -->
+            <div class="row" id="stayRowMain">
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-3">Loading hotels...</p>
+                </div>
+            </div>
+
+            <!-- More Hotels Row (Hidden Initially) -->
+            <div class="row" id="stayRowMore" style="display: none;"></div>
+
+            <!-- Show More Button -->
+            <div id="showMoreContainer" class="text-center mt-4" style="display: none;">
+                <button class="btn btn-outline-primary" id="showMoreBtn">
+                    <i class="bi bi-chevron-down"></i> Show More
+                </button>
+            </div>
+        </div>
+    </section>
+
+  <!-- Explore Section -->
+    <section id="explore" class="py-5 bg-light">
         <div class="container">
             <div class="text-center mb-5">
                 <h2 class="display-5 fw-bold">Explore the Philippines</h2>
@@ -776,8 +296,7 @@ footer p {
         </div>
     </section>
 
-
-        <!-- Footer -->
+    <!-- Footer -->
     <footer class="bg-light py-4 mt-5 border-top">
         <div class="container">
             <div class="row">
@@ -810,14 +329,104 @@ footer p {
             </div>
         </div>
     </footer>
-    </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <!-- Booking Modal -->
+    <div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="bookingModalLabel">Book Your Stay</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Hotel Details Section -->
+                    <div class="row mb-4">
+                        <div class="col-md-5">
+                            <img id="modalHotelImage" src="" class="img-fluid rounded" alt="Hotel" style="width: 100%; height: 250px; object-fit: cover;">
+                        </div>
+                        <div class="col-md-7">
+                            <h4 id="modalHotelName">Hotel Name</h4>
+                            <p class="text-muted mb-2">
+                                <i class="bi bi-geo-alt"></i> <span id="modalHotelAddress">Address</span>
+                            </p>
+                            <p class="mb-2">
+                                <span class="badge bg-warning text-dark">
+                                    <i class="bi bi-star-fill"></i> <span id="modalHotelRating">N/A</span>
+                                </span>
+                            </p>
+                            <p id="modalHotelDescription" class="mb-3">Hotel description</p>
+                            <div class="bg-light p-3 rounded">
+                                <h5 class="text-primary mb-0" id="modalHotelPrice">₱0</h5>
+                                <small class="text-muted">per night</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Booking Details -->
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h6 class="card-title">Booking Details</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="mb-2"><strong>Check-in:</strong> <span id="modalCheckIn">-</span></p>
+                                    <p class="mb-2"><strong>Check-out:</strong> <span id="modalCheckOut">-</span></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="mb-2"><strong>Guests:</strong> <span id="modalGuests">-</span></p>
+                                    <p class="mb-2"><strong>Nights:</strong> <span id="modalNights">-</span></p>
+                                </div>
+                            </div>
+                            <hr>
+                            <h5 class="text-end">Total: <span class="text-primary" id="modalTotalPrice">₱0</span></h5>
+                        </div>
+                    </div>
+
+                    <!-- Billing Form -->
+                    <form id="bookingForm">
+                        <h6 class="mb-3">Payment Information</h6>
+                        
+                        <div class="mb-3">
+                            <label for="cardHolderName" class="form-label">Cardholder Name *</label>
+                            <input type="text" class="form-control" id="cardHolderName" name="card_holder_name" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="cardNumber" class="form-label">Card Number *</label>
+                            <input type="text" class="form-control" id="cardNumber" name="card_number" 
+                                   placeholder="1234 5678 9012 3456" maxlength="19" required>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="expiryDate" class="form-label">Expiry Date *</label>
+                                <input type="text" class="form-control" id="expiryDate" name="expiry_date" 
+                                       placeholder="MM/YY" maxlength="5" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="cvv" class="form-label">CVV *</label>
+                                <input type="text" class="form-control" id="cvv" name="cvv" 
+                                       placeholder="123" maxlength="3" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="billingAddress" class="form-label">Billing Address *</label>
+                            <textarea class="form-control" id="billingAddress" name="billing_address" 
+                                      rows="2" required></textarea>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-credit-card"></i> Confirm Booking
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="app.js"></script>
-
-  </body>
+</body>
 </html>
-
-
-
-    
